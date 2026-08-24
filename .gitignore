@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 venv/
 venv
 backend/venv/
@@ -5,3 +6,71 @@ backend/venv/
 backend/.env
 __pycache__/
 *.pyc
+=======
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database / Storage
+postgres_data/
+*.sqlite3
+*.db
+
+# OS / IDE
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# AI / Jupyter Checkpoints
+.ipynb_checkpoints/
+ai/notebooks/.ipynb_checkpoints/
+>>>>>>> 46b62c157f261459a9a75dbe9995116cab0d172e
