@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy import text
 from app.config import settings, Settings
 from app.api.deps import get_settings
-from app.db.session import AsyncSessionLocal
+from app.db.session import SessionLocal
 from app.schemas import HealthCheckResponse, ReadinessCheckResponse
 
 router = APIRouter()
@@ -23,7 +23,7 @@ async def health_check(
 ) -> HealthCheckResponse:
     db_status = "connected"
     try:
-        async with AsyncSessionLocal() as session:
+        async with SessionLocal() as session:
             await session.execute(text("SELECT 1"))
     except Exception:
         db_status = "disconnected (offline/fallback mode)"
