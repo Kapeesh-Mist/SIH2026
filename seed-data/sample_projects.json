@@ -1,0 +1,136 @@
+[
+  {
+    "id": "proj-001",
+    "project_code": "NAT-INFRA-2026-001",
+    "title": "National High-Speed Transit Corridor - Phase 2",
+    "department": "Ministry of Road Transport and Highways",
+    "sanction_date": "2026-01-15",
+    "total_sanctioned_budget": 500000000.0,
+    "disbursed_budget": 320000000.0,
+    "utilized_budget": 248500000.0,
+    "status": "IN_PROGRESS",
+    "progress_percentage": 58,
+    "sub_projects": [
+      {
+        "id": "proj-001-a",
+        "project_code": "NAT-INFRA-2026-001-TUNNEL",
+        "title": "Mountain Tunneling & Civil Structural Works",
+        "allocated_budget": 180000000.0,
+        "utilized_budget": 120000000.0,
+        "status": "IN_PROGRESS",
+        "progress_percentage": 66
+      },
+      {
+        "id": "proj-001-b",
+        "project_code": "NAT-INFRA-2026-001-ELEC",
+        "title": "Overhead Electrification & Signal Sub-stations",
+        "allocated_budget": 140000000.0,
+        "utilized_budget": 78500000.0,
+        "status": "IN_PROGRESS",
+        "progress_percentage": 45
+      }
+    ],
+    "recent_expenses": [
+      {
+        "invoice_number": "INV-LNT-2026-891",
+        "vendor": "Larsen & Infrastructure Ltd",
+        "amount": 24500000.0,
+        "date": "2026-07-20",
+        "category": "Civil Works",
+        "status": "VERIFIED"
+      },
+      {
+        "invoice_number": "INV-ABB-2026-104",
+        "vendor": "ABB Grid Systems",
+        "amount": 12800000.0,
+        "date": "2026-08-05",
+        "category": "Electrification",
+        "status": "PENDING"
+      }
+    ],
+    "active_anomalies": [
+      {
+        "id": "anom-101",
+        "type": "RAPID_DEPLETION",
+        "severity": "HIGH",
+        "description": "Sub-project TUNNEL expenditure velocity exceeds physical excavation milestone by 28%",
+        "date_flagged": "2026-08-10"
+      }
+    ]
+  },
+  {
+    "id": "proj-002",
+    "project_code": "RUR-WTR-2026-042",
+    "title": "Clean Tap Water Mission (Jal Jeevan) - Marathwada District",
+    "department": "Department of Drinking Water & Sanitation",
+    "sanction_date": "2026-02-01",
+    "total_sanctioned_budget": 180000000.0,
+    "disbursed_budget": 120000000.0,
+    "utilized_budget": 95000000.0,
+    "status": "IN_PROGRESS",
+    "progress_percentage": 72,
+    "sub_projects": [
+      {
+        "id": "proj-002-a",
+        "project_code": "RUR-WTR-2026-042-PIPE",
+        "title": "High-Density Polyethylene Pipeline Distribution",
+        "allocated_budget": 85000000.0,
+        "utilized_budget": 65000000.0,
+        "status": "IN_PROGRESS",
+        "progress_percentage": 76
+      },
+      {
+        "id": "proj-002-b",
+        "project_code": "RUR-WTR-2026-042-SOLAR",
+        "title": "Solar Powered Water Filtration Units",
+        "allocated_budget": 35000000.0,
+        "utilized_budget": 30000000.0,
+        "status": "IN_PROGRESS",
+        "progress_percentage": 82
+      }
+    ],
+    "recent_expenses": [
+      {
+        "invoice_number": "INV-JIND-2026-44",
+        "vendor": "Jindal Piping Solutions",
+        "amount": 8900000.0,
+        "date": "2026-08-11",
+        "category": "Procurement",
+        "status": "VERIFIED"
+      }
+    ],
+    "active_anomalies": []
+  },
+  {
+    "id": "proj-003",
+    "project_code": "HLT-MOD-2026-019",
+    "title": "District Primary Health Center Digitization & ICU Upgrades",
+    "department": "Ministry of Health & Family Welfare",
+    "sanction_date": "2026-03-10",
+    "total_sanctioned_budget": 95000000.0,
+    "disbursed_budget": 45000000.0,
+    "utilized_budget": 18200000.0,
+    "status": "IN_PROGRESS",
+    "progress_percentage": 30,
+    "sub_projects": [],
+    "recent_expenses": [
+      {
+        "invoice_number": "INV-MED-2026-302",
+        "vendor": "MediTech Solutions India",
+        "amount": 4200000.0,
+        "date": "2026-08-14",
+        "category": "Medical Equipment",
+        "status": "PENDING"
+      }
+    ],
+    "active_anomalies": [
+      {
+        "id": "anom-102",
+        "type": "VENDOR_PRICE_DISCREPANCY",
+        "severity": "MEDIUM",
+        "description": "Invoice unit rate for Ventilator Unit Type-B is 14% higher than Central GeM benchmark",
+        "date_flagged": "2026-08-15"
+      }
+    ]
+  }
+]
