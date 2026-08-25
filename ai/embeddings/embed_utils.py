@@ -1,58 +1,56 @@
-"""Utility module for vector embeddings generation and similarity search.
+"""
+ai/embeddings/embed_utils.py — P4
 
-This module acts as a clean foundation placeholder for vector embeddings,
-supporting future integrations with local models or external embedding APIs.
+Shared embedding helpers used by layer3_duplicate_ghost.py for
+duplicate/near-duplicate document detection via pgvector cosine similarity.
 """
 
-from typing import List, Sequence
-import math
+import sys
+import os
+import importlib
+import numpy as np
+
+# Add backend directory to sys.path so app.config can be resolved
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend"))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+
+_model = None
 
 
-def mock_embed_text(text: str, dimensions: int = 128) -> List[float]:
-    """Generate a deterministic normalized pseudo-embedding vector for a given text string.
-
-    Useful for offline testing and initial pipeline scaffolding.
-    """
-    if not text:
-        return [0.0] * dimensions
-
-    # Deterministic hash-based pseudo vector
-    seed = sum(ord(c) for c in text)
-    raw_vector = [
-        math.sin(seed * (i + 1)) * math.cos(i + 0.5) for i in range(dimensions)
-    ]
-    # L2 Normalization
-    magnitude = math.sqrt(sum(v * v for v in raw_vector)) or 1.0
-    return [v / magnitude for v in raw_vector]
+def _get_model():
+    global _model
+    if _model is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+            try:
+                config_mod = importlib.import_module("app.config")
+                model_name = getattr(config_mod.settings, "embedding_model", "all-MiniLM-L6-v2")
+            except Exception:
+                model_name = "all-MiniLM-L6-v2"
+            _model = SentenceTransformer(model_name)
+        except Exception:
+            _model = False
+    return _model
 
 
-def cosine_similarity(vector_a: Sequence[float], vector_b: Sequence[float]) -> float:
-    """Compute cosine similarity between two float vectors."""
-    if len(vector_a) != len(vector_b):
-        raise ValueError("Vector dimensions must match for cosine similarity.")
+def embed_text(text: str) -> list[float]:
+    """Returns a 384-dim embedding vector for the given text, ready to
+    store in the `embeddings` table's pgvector column."""
+    model = _get_model()
+    if not model:
+        return [0.0] * 384
+    vector = model.encode(text, normalize_embeddings=True)
+    return vector.tolist()
 
-    dot_product = sum(a * b for a, b in zip(vector_a, vector_b))
-    mag_a = math.sqrt(sum(a * a for a in vector_a))
-    mag_b = math.sqrt(sum(b * b for b in vector_b))
 
-    if mag_a == 0.0 or mag_b == 0.0:
+def cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
+    """Cosine similarity between two vectors already normalized by
+    embed_text() — for normalized vectors this is just the dot product.
+    Kept as an explicit function so callers don't have to know that."""
+    a = np.array(vec_a)
+    b = np.array(vec_b)
+    denom = np.linalg.norm(a) * np.linalg.norm(b)
+    if denom == 0:
         return 0.0
-
-    return dot_product / (mag_a * mag_b)
-
-
-class EmbeddingService:
-    """Service wrapper for vector embedding operations."""
-
-    def __init__(self, model_name: str = "mock-embedding-model"):
-        self.model_name = model_name
-
-    def generate_embedding(self, text: str) -> List[float]:
-        """Generate text embedding vector."""
-        return mock_embed_text(text)
-
-    def find_most_similar(
-        self, query_vector: List[float], candidate_vectors: List[List[float]]
-    ) -> List[float]:
-        """Return similarity scores against a list of candidates."""
-        return [cosine_similarity(query_vector, cand) for cand in candidate_vectors]
+    return float(np.dot(a, b) / denom)

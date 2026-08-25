@@ -7,6 +7,7 @@ version_no when the roadmap changes (see the "master text" doc, Section 5).
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 import uuid
 
 from sqlalchemy import ForeignKey, Integer, UniqueConstraint
@@ -14,6 +15,9 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDPKMixin
+
+if TYPE_CHECKING:
+    from app.models.hierarchy import Hierarchy
 
 
 class RoadmapVersion(UUIDPKMixin, TimestampMixin, Base):

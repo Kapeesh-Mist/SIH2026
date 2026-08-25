@@ -1,18 +1,51 @@
-from pydantic import BaseModel
+"""
+backend/app/schemas/expense.py — P2
+"""
+
 from datetime import datetime
-from typing import Optional
+from decimal import Decimal
+from uuid import UUID
 
-class ExpenseBase(BaseModel):
-    node_id: str
-    amount: float
-    description: Optional[str] = None
+from pydantic import BaseModel
 
-class ExpenseCreate(ExpenseBase):
-    pass
 
-class ExpenseResponse(ExpenseBase):
-    id: str
-    created_at: datetime
+class ExpenseCreate(BaseModel):
+    category: str
+    amount: Decimal
+    progress_value: Decimal | None = None
+    progress_unit: str | None = None
+    # the evidencing document is uploaded as multipart/form-data alongside
+    # this JSON in the same request — see api/routes/expenses.py
+
+
+class ExpenseRead(BaseModel):
+    id: UUID
+    node_id: UUID
+    category: str
+    amount: Decimal
+    progress_value: Decimal | None
+    progress_unit: str | None
+    status: str
+    uploaded_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class DocumentRead(BaseModel):
+    id: UUID
+    node_id: UUID
+    expense_id: UUID | None
+    doc_type: str
+    file_url: str
+    parsed_data: dict | None
+    verified_by: UUID | None
+    verified_at: datetime | None
+    uploaded_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class DocumentRejectRequest(BaseModel):
+    reason: str

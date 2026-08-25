@@ -1,50 +1,47 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from passlib.context import CryptContext
-import jwt
-from datetime import datetime, timedelta
+"""
+backend/app/api/routes/auth.py — P1
 
-from app.db.session import SessionLocal
+POST /auth/register, POST /auth/login
+"""
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from passlib.context import CryptContext
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.api.deps import create_access_token, get_db
 from app.models.user import User
-from app.schemas.auth import LoginRequest, TokenResponse
-from app.config import settings
+from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserRead
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
-def create_access_token(data: dict, expires_delta: int):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=expires_delta)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> TokenResponse:
+    existing = db.scalar(select(User).where(User.email == payload.email))
+    if existing is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
-@router.post("/signup", response_model=TokenResponse)
-def signup(email: str, password: str, full_name: str | None = None, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    hashed_pw = pwd_context.hash(password)
-    user = User(email=email, full_name=full_name, password_hash=hashed_pw)
+    user = User(
+        email=payload.email,
+        password_hash=pwd_context.hash(payload.password),
+        full_name=payload.full_name,
+        aadhaar_ref=payload.aadhaar_ref,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    token = create_access_token({"sub": str(user.id)}, settings.access_token_expire_minutes)
-    return TokenResponse(access_token=token)
+    token = create_access_token(user.id)
+    return TokenResponse(access_token=token, user=UserRead.model_validate(user))
+
 
 @router.post("/login", response_model=TokenResponse)
-def login(request: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == request.email).first()
-    if not user or not pwd_context.verify(request.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+    user = db.scalar(select(User).where(User.email == payload.email))
+    if user is None or not pwd_context.verify(payload.password, user.password_hash):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
 
-    token = create_access_token({"sub": str(user.id)}, settings.access_token_expire_minutes)
-    return TokenResponse(access_token=token)
+    token = create_access_token(user.id)
+    return TokenResponse(access_token=token, user=UserRead.model_validate(user))

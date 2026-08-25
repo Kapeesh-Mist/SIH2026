@@ -5,27 +5,30 @@ Centralized settings object, read once at import time from environment
 variables / a .env file. Every other module imports `settings` from here
 instead of calling os.environ directly.
 """
-# backend/app/config.py
+
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     # --- Database ---
-    database_url: str
+    database_url: str = "postgresql+psycopg://user:password@localhost:5432/sih26102"
 
     # --- Auth ---
-    jwt_secret: str
-    jwt_algorithm: str
-    access_token_expire_minutes: int
+    jwt_secret: str = "change-me-in-env"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24  # 1 day
 
     # --- LLM / AI services ---
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-1.5-flash"
+    nvidia_api_key: str = ""
+    nvidia_model: str = "meta/llama-3.1-70b-instruct"
     llm_api_key: str = ""
     llm_model: str = "claude-sonnet-4-6"
-    embedding_model: str = "all-MiniLM-L6-v2"
+    embedding_model: str = "all-MiniLM-L6-v2"  # sentence-transformers, 384 dims (matches embeddings.embedding_vector)
 
     # --- File storage ---
     storage_bucket_url: str = ""
@@ -33,7 +36,7 @@ class Settings(BaseSettings):
 
     # --- App ---
     environment: str = "development"
-    cors_origins: List[str] = ["http://localhost:5173"]
+    cors_origins: list[str] = ["http://localhost:5173"]
 
 
 @lru_cache

@@ -4,6 +4,7 @@ backend/app/models/hierarchy.py — HIERARCHIES (ER diagram)
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 import uuid
 from decimal import Decimal
 
@@ -12,6 +13,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDPKMixin
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.node import Node
+    from app.models.roadmap_version import RoadmapVersion
 
 
 class Hierarchy(UUIDPKMixin, TimestampMixin, Base):

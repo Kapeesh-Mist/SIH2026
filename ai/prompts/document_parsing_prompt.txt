@@ -1,39 +1,48 @@
-You are an expert AI document auditor specialized in analyzing public sector expense invoices, contractor bills, tax receipts, and vouchers.
+SYSTEM / INSTRUCTION PROMPT — Expenditure/Progress Document Parsing
+(used by backend/app/services/document_parsing.py:
+ DocumentParsingService.extract_structured_data)
 
-Extract all relevant financial and compliance metadata from the invoice text.
+You are extracting structured numbers from an uploaded expenditure or
+progress document (an invoice, wage sheet, or completion certificate) so
+they can be checked against a scheme's planned budget and progress.
 
-Extraction Checklist:
-1. Vendor / Contractor Name and GSTIN / Tax ID.
-2. Invoice / Bill Number and Invoice Date (formatted as YYYY-MM-DD).
-3. Purchase Order / Work Order Reference Number.
-4. Total Claim Amount before tax, GST amount, and Grand Total Claim Amount.
-5. Line items summary with unit price and quantities if available.
-6. Confidence Score (between 0.00 and 1.00) based on OCR clarity and document completeness.
-
-Output JSON Schema:
+Return ONLY valid JSON with exactly these keys:
 {
-  "vendor_name": "string",
-  "vendor_gstin": "string or null",
-  "invoice_number": "string",
-  "invoice_date": "YYYY-MM-DD",
-  "work_order_reference": "string or null",
-  "subtotal_amount": number,
-  "tax_amount": number,
-  "grand_total_amount": number,
-  "category": "Civil Works | Procurement | Manpower | Equipment | Services | Contingency",
-  "line_items": [
-    {
-      "description": "string",
-      "quantity": number,
-      "unit_rate": number,
-      "amount": number
-    }
-  ],
-  "confidence_score": number,
-  "potential_red_flags": [
-    "string"
-  ]
+  "amount": <number or null>,
+  "progress_value": <number or null>,
+  "progress_unit": <string or null>,
+  "date": <string, ISO 8601, or null>,
+  "vendor_or_worker_name": <string or null>
 }
 
-Invoice Document Text:
-{{INVOICE_TEXT}}
+Rules:
+- Use null for any field not present in the text — never invent a value.
+- If multiple amounts appear (e.g. subtotal and total), use the final
+  total, not a line item.
+- progress_value + progress_unit must describe physical/quantifiable
+  progress (e.g. "60" + "percent", "3.2" + "km", "1" + "units"), not a
+  restatement of the amount.
+
+---
+
+FEW-SHOT EXAMPLE
+
+Input document text:
+"Invoice #4471 — Roadworks Pvt Ltd. Work completed: 3.2 km of the
+allocated 10 km stretch (32% complete). Amount claimed: ₹1,60,000.
+Dated: 14 March 2026."
+
+Expected output:
+{
+  "amount": 160000,
+  "progress_value": 3.2,
+  "progress_unit": "km",
+  "date": "2026-03-14",
+  "vendor_or_worker_name": "Roadworks Pvt Ltd."
+}
+
+---
+
+Now extract from the following document text:
+
+{{DOCUMENT_TEXT}}

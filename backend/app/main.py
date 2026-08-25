@@ -6,11 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-
-# Routers are added under api/routes/ (auth, hierarchies, nodes, expenses,
-# alerts, verification) — wire them up here as each one is built:
-
-from app.api.routes import auth #, hierarchies, nodes, expenses, alerts, verification
+from app.api.routes import auth, hierarchies, nodes, expenses, alerts, verification
 
 app = FastAPI(
     title="SIH26102 — Hierarchical Financial Monitoring Platform",
@@ -33,8 +29,8 @@ def health_check() -> dict:
 
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
-# app.include_router(hierarchies.router, prefix="/hierarchies", tags=["hierarchies"])
-# app.include_router(nodes.router, prefix="/nodes", tags=["nodes"])
-# app.include_router(expenses.router, prefix="/expenses", tags=["expenses"])
-# app.include_router(alerts.router, prefix="/alerts", tags=["alerts"])
-# app.include_router(verification.router, prefix="/verification", tags=["verification"])
+app.include_router(hierarchies.router, prefix="/hierarchies", tags=["hierarchies"])
+app.include_router(nodes.router, prefix="/nodes", tags=["nodes"])
+app.include_router(expenses.router, prefix="/nodes", tags=["expenses"])  # nested under /nodes/{id}/expenses
+app.include_router(alerts.router, prefix="/alerts", tags=["alerts"])
+app.include_router(verification.router, prefix="/documents", tags=["verification"])  # /documents/{id}/verify

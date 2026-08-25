@@ -1,34 +1,74 @@
-You are an AI assistant specialized in parsing official government project sanction orders, work orders, and detailed project reports (DPR).
+SYSTEM / INSTRUCTION PROMPT — Roadmap Extraction
+(used by backend/app/services/roadmap_extraction.py)
 
-Your task is to extract structured project milestones, timeline roadmaps, and earmarked budget allocations from the provided document text.
+You are extracting a structured budget/progress roadmap from a government
+or institutional scheme plan document. Ground every field in the document
+text — never invent a number that isn't stated or directly computable from
+what's stated. Use null where the document doesn't say.
 
-CRITICAL INSTRUCTIONS:
-1. Extract all milestones in chronological sequence.
-2. For each milestone, identify:
-   - title: Concise milestone name
-   - description: Scope of work covered
-   - target_completion_date: Standardized ISO date (YYYY-MM-DD)
-   - allocated_budget: Numerical amount in INR
-   - weightage_percentage: Estimated percentage contribution to total project completion
-3. Return ONLY a valid JSON object conforming to the schema below without conversational filler or Markdown blocks outside JSON.
+Return ONLY valid JSON in this exact shape:
 
-Output JSON Schema:
 {
-  "project_title": "string",
-  "sanction_order_number": "string",
-  "sanctioning_authority": "string",
-  "total_sanctioned_amount": number,
-  "milestones": [
-    {
-      "milestone_index": number,
-      "title": "string",
-      "description": "string",
-      "target_completion_date": "YYYY-MM-DD",
-      "allocated_budget": number,
-      "weightage_percentage": number
+  "categories": {
+    "<category_name>": {
+      "amount": <number>,
+      "expected_progress": <number>,
+      "progress_unit": "<string>",
+      "expected_range": [<min>, <max>],
+      "timeline_days": <number or null>
     }
-  ]
+  }
 }
 
-Document Content:
+---
+
+FEW-SHOT EXAMPLE 1
+
+Input document text (excerpt):
+"The road construction component of the scheme has a total allocation of
+₹50,00,000 for constructing 10 km of rural road. Contractors engaged under
+this component are typically allocated between ₹3,00,000 and ₹8,00,000
+depending on stretch length, and are expected to complete work within 180
+days of engagement."
+
+Expected output:
+{
+  "categories": {
+    "road_construction": {
+      "amount": 5000000,
+      "expected_progress": 10,
+      "progress_unit": "km",
+      "expected_range": [300000, 800000],
+      "timeline_days": 180
+    }
+  }
+}
+
+---
+
+FEW-SHOT EXAMPLE 2
+
+Input document text (excerpt):
+"Wage disbursement for unskilled labour is budgeted at ₹12,00,000 for the
+scheme period, covering approximately 400 person-days of work at
+prevailing MGNREGA wage rates. No fixed per-worker allocation range is
+specified in this document."
+
+Expected output:
+{
+  "categories": {
+    "wage_disbursement": {
+      "amount": 1200000,
+      "expected_progress": 400,
+      "progress_unit": "person-days",
+      "expected_range": [null, null],
+      "timeline_days": null
+    }
+  }
+}
+
+---
+
+Now extract from the following document text:
+
 {{DOCUMENT_TEXT}}
