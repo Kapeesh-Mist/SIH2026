@@ -1,0 +1,33 @@
+{
+  "scheme_name": "Community Health Centre Improvement Project",
+  "total_budget": 2000000.0,
+  "duration_months": 8,
+  "start_date": "01 April 2026",
+  "expected_completion_date": "30 November 2026",
+  "categories": [
+    {
+      "name": "Civil renovation",
+      "expected_amount": 1000000.0,
+      "expected_progress": 100.0,
+      "progress_unit": "percent"
+    },
+    {
+      "name": "Electrical work",
+      "expected_amount": 300000.0,
+      "expected_progress": 100.0,
+      "progress_unit": "percent"
+    },
+    {
+      "name": "Medical equipment",
+      "expected_amount": 500000.0,
+      "expected_progress": 100.0,
+      "progress_unit": "percent"
+    },
+    {
+      "name": "Furniture",
+      "expected_amount": 200000.0,
+      "expected_progress": 100.0,
+      "progress_unit": "percent"
+    }
+  ]
+}
