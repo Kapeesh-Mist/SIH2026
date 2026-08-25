@@ -1,0 +1,90 @@
+/* ===================== Landing / marketing site ===================== */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between;
+  padding:20px 6vw; backdrop-filter:blur(10px); background:rgba(10,12,24,0.55); border-bottom:1px solid var(--border);
+}
+.nav .brand{ font-family:var(--font-display); font-weight:700; font-size:19px; display:flex; align-items:center; gap:10px; }
+.nav .brand .mark{ width:30px; height:30px; border-radius:9px; background:var(--grad-flow); display:flex; align-items:center; justify-content:center; font-size:14px; color:#04060F; font-weight:800; }
+.nav-links{ display:flex; align-items:center; gap:34px; }
+.nav-links a{ font-size:14px; color:var(--text-mid); transition:color .15s ease; }
+.nav-links a:hover{ color:var(--text-hi); }
+.nav-cta{ display:flex; gap:12px; align-items:center; }
+
+.hero{
+  min-height:100vh; display:flex; align-items:center; padding:140px 6vw 80px; gap:60px;
+}
+.hero-copy{ flex:1; max-width:560px; }
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px;
+  color:var(--cyan); letter-spacing:.06em; text-transform:uppercase; margin-bottom:22px;
+  border:1px solid rgba(53,225,224,0.3); padding:6px 14px; border-radius:999px; background:rgba(53,225,224,0.06);
+}
+.hero h1{
+  font-family:var(--font-display); font-size:clamp(34px,4.6vw,58px); line-height:1.06; font-weight:700; letter-spacing:-0.01em;
+  margin-bottom:22px;
+}
+.hero h1 em{ font-style:normal; background:var(--grad-flow); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.hero p{ font-size:16.5px; color:var(--text-mid); line-height:1.65; margin-bottom:32px; max-width:480px; }
+.hero-actions{ display:flex; gap:14px; align-items:center; margin-bottom:36px; }
+.hero-stats{ display:flex; gap:32px; }
+.hero-stats .s{ }
+.hero-stats .s .n{ font-family:var(--font-mono); font-size:22px; font-weight:600; }
+.hero-stats .s .l{ font-size:11.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em; }
+
+.hero-visual{ flex:1; max-width:560px; position:relative; }
+.flow-stage{
+  position:relative; width:100%; aspect-ratio:1/1; max-width:520px; margin:0 auto;
+}
+
+section{ padding:110px 6vw; position:relative; }
+.section-head{ max-width:640px; margin:0 auto 56px; text-align:center; }
+.section-head .eyebrow{ margin-bottom:16px; }
+.section-head h2{ font-family:var(--font-display); font-size:clamp(26px,3.2vw,38px); font-weight:700; margin-bottom:14px; }
+.section-head p{ color:var(--text-mid); font-size:15.5px; line-height:1.6; }
+
+.problem-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; max-width:1080px; margin:0 auto; }
+.problem-card{ padding:26px; }
+.problem-card .n{ font-family:var(--font-mono); color:var(--text-dim); font-size:12.5px; margin-bottom:14px; }
+.problem-card h4{ font-family:var(--font-display); font-size:16px; margin-bottom:10px; }
+.problem-card p{ font-size:13.5px; color:var(--text-mid); line-height:1.6; }
+
+.flow-explainer{ max-width:1000px; margin:0 auto; }
+.tier-row{ display:flex; align-items:stretch; gap:0; }
+.tier{
+  flex:1; text-align:center; padding:26px 14px; position:relative;
+}
+.tier .dot{
+  width:14px; height:14px; border-radius:50%; margin:0 auto 14px; background:var(--grad-flow);
+  box-shadow:0 0 0 5px rgba(124,92,252,0.12);
+}
+.tier h5{ font-family:var(--font-display); font-size:14.5px; margin-bottom:6px; }
+.tier p{ font-size:12.5px; color:var(--text-dim); line-height:1.5; }
+.tier-connector{ flex:0 0 40px; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:18px; opacity:.5; }
+
+.roles-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; max-width:1080px; margin:0 auto; }
+.role-card{ padding:28px; }
+.role-card .tag{ font-family:var(--font-mono); font-size:11px; color:var(--purple); text-transform:uppercase; letter-spacing:.06em; margin-bottom:14px; }
+.role-card h4{ font-family:var(--font-display); font-size:17px; margin-bottom:10px; }
+.role-card ul{ margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+.role-card li{ font-size:13px; color:var(--text-mid); display:flex; gap:8px; }
+.role-card li::before{ content:'—'; color:var(--cyan); flex-shrink:0; }
+
+.cta-band{
+  max-width:900px; margin:0 auto; text-align:center; padding:70px 40px; border-radius:var(--radius-lg);
+  background:var(--grad-panel); border:1px solid var(--border-hi);
+}
+.cta-band h2{ font-family:var(--font-display); font-size:clamp(24px,3vw,34px); margin-bottom:14px; }
+.cta-band p{ color:var(--text-mid); margin-bottom:30px; }
+
+footer{ padding:40px 6vw; border-top:1px solid var(--border); display:flex; justify-content:space-between; color:var(--text-dim); font-size:12.5px; flex-wrap:wrap; gap:10px; }
+
+[data-reveal]{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+[data-reveal].in{ opacity:1; transform:translateY(0); }
+
+@media (max-width:900px){
+  .hero{ flex-direction:column; padding-top:120px; }
+  .problem-grid, .roles-grid{ grid-template-columns:1fr; }
+  .tier-row{ flex-direction:column; }
+  .tier-connector{ transform:rotate(90deg); padding:6px 0; }
+  .nav-links{ display:none; }
+}

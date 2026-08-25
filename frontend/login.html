@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log in — FinTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .auth-wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .auth-card{ width:100%; max-width:400px; padding:36px 32px; }
+  .auth-brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:18px; margin-bottom:28px; justify-content:center; }
+  .auth-brand .mark{ width:30px; height:30px; border-radius:9px; background:var(--grad-flow); display:flex; align-items:center; justify-content:center; font-size:14px; color:#04060F; font-weight:800; }
+  .auth-title{ text-align:center; margin-bottom:26px; }
+  .auth-title h1{ font-family:var(--font-display); font-size:21px; margin-bottom:6px; }
+  .auth-title p{ font-size:13.5px; color:var(--text-dim); }
+  .auth-foot{ text-align:center; margin-top:20px; font-size:13px; color:var(--text-dim); }
+  .signup-note{ display:none; background:rgba(124,92,252,0.1); border:1px solid rgba(124,92,252,0.25); border-radius:var(--radius-sm); padding:14px 16px; font-size:12.5px; color:var(--text-mid); margin-bottom:20px; line-height:1.6; }
+  .back-home{ position:fixed; top:22px; left:22px; font-size:13px; color:var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="bg-field"></div>
+<a href="index.html" class="back-home">← Back to FinTrack</a>
+
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="auth-brand"><span class="mark">F</span>FinTrack</div>
+    <div class="auth-title">
+      <h1>Log in to your workspace</h1>
+      <p>Enter the email and password your admin set up for you.</p>
+    </div>
+
+    <div class="signup-note" id="signupNote">
+      New here? FinTrack accounts are created by your organization's admin (or the intermediate above you) from inside a scheme — there's no public sign-up for a financial system like this. Ask them to add your email, then log in below.
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="email">Email ID</label>
+        <input id="email" type="email" placeholder="you@organisation.gov" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••" required autocomplete="current-password">
+        <div class="field-error" id="loginError"></div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log in</button>
+    </form>
+
+    <div class="auth-foot">First time setting up FinTrack? The first login for a seeded admin email works the same way — see the backend README.</div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if (qs('mode') === 'signup') document.getElementById('signupNote').style.display = 'block';
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+
+    btn.disabled = true; btn.textContent = 'Logging in…';
+    try{
+      const { token, user } = await Api.login(email, password);
+      setSession(token, user);
+      window.location.href = roleHome(user.role);
+    }catch(err){
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Log in';
+    }
+  });
+</script>
+</body>
+</html>

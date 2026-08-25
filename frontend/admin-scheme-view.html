@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scheme — FinTrack Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="bg-field"></div>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">F</span>FinTrack</div>
+    <a href="admin-dashboard.html" class="side-link">← All schemes</a>
+
+    <div>
+      <div class="col-title" style="margin-bottom:8px;">
+        <span class="side-section-label" style="margin-bottom:0;">Users</span>
+        <span class="side-link" style="padding:4px 8px;" title="Add user" onclick="openModal('addUserModal')">+ Add user</span>
+      </div>
+      <div id="userList"><div class="dim" style="font-size:12.5px; padding:8px 4px;">Loading…</div></div>
+    </div>
+
+    <div class="side-foot">
+      <div class="side-link" onclick="logout()">Log out</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="schemeName">Loading…</h1>
+        <div class="path" id="schemeMeta">—</div>
+      </div>
+      <div class="who">
+        <div class="info">
+          <div class="name" data-who-name>—</div>
+          <div class="role" data-who-role>—</div>
+        </div>
+        <div class="avatar" data-who-avatar>—</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="col-title"><h3>Progress</h3><span class="badge badge-ongoing" id="statusBadge">Ongoing</span></div>
+        <div class="doc-list" id="progressList"></div>
+      </div>
+      <div class="card">
+        <div class="col-title"><h3>Expenditure</h3></div>
+        <div class="doc-list" id="expenditureList"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add user modal -->
+<div class="modal-backdrop" id="addUserModal">
+  <div class="modal">
+    <h3>Add a user to this scheme</h3>
+    <form id="addUserForm">
+      <div class="field">
+        <label for="uEmail">User email ID</label>
+        <input id="uEmail" type="email" placeholder="name@organisation.gov" required>
+      </div>
+      <div class="field">
+        <label for="uPass">Password</label>
+        <input id="uPass" type="password" placeholder="Set a temporary password" required>
+      </div>
+      <div class="field">
+        <label for="uRole">Role</label>
+        <select id="uRole" required>
+          <option value="intermediate">Intermediate</option>
+          <option value="enduser">End user</option>
+        </select>
+        <div class="field-hint">Admins choose intermediate or end user here.</div>
+      </div>
+      <div class="field-error" id="addUserError"></div>
+      <div class="form-actions" style="display:flex; gap:12px; justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('addUserModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create user</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  const user = requireAuth(['admin']);
+  const schemeId = qs('id');
+  if (!schemeId) window.location.href = 'admin-dashboard.html';
+
+  function docItem(d){
+    return `<div class="doc-item">
+      <div class="ico">PDF</div>
+      <div class="info">
+        <div class="fname">${d.filename}</div>
+        <div class="fmeta">${fmtDate(d.uploadedAt)} · ${d.uploadedBy || 'unknown'}${d.amount ? ' · ' + fmtMoney(d.amount) : ''}${d.percent ? ' · ' + d.percent + '% progress' : ''}</div>
+      </div>
+    </div>`;
+  }
+
+  function userRow(u){
+    return `<div class="user-row">
+      <div class="avatar" style="width:28px;height:28px;font-size:11px;">${initials(u.email)}</div>
+      <div class="info">
+        <div class="em">${u.email}</div>
+        <div class="role">${u.role}</div>
+      </div>
+    </div>`;
+  }
+
+  async function loadScheme(){
+    try{
+      const scheme = await Api.getScheme(schemeId);
+      document.getElementById('schemeName').textContent = scheme.name;
+      document.getElementById('schemeMeta').textContent = `${fmtMoney(scheme.initialBudget)} initial budget · Admin workspace`;
+      document.getElementById('statusBadge').textContent = scheme.status === 'completed' ? 'Completed' : 'Ongoing';
+      document.getElementById('statusBadge').className = 'badge ' + (scheme.status === 'completed' ? 'badge-completed' : 'badge-ongoing');
+
+      const progressList = document.getElementById('progressList');
+      progressList.innerHTML = (scheme.progressDocs || []).length
+        ? scheme.progressDocs.map(docItem).join('')
+        : `<div class="empty-state" style="padding:30px 10px;"><div class="icon">▤</div><div>No progress documents uploaded yet</div></div>`;
+
+      const expList = document.getElementById('expenditureList');
+      expList.innerHTML = (scheme.expenditureDocs || []).length
+        ? scheme.expenditureDocs.map(docItem).join('')
+        : `<div class="empty-state" style="padding:30px 10px;"><div class="icon">▤</div><div>No expenditure documents uploaded yet</div></div>`;
+    }catch(err){
+      toast(err.message, true);
+    }
+  }
+
+  async function loadUsers(){
+    try{
+      const users = await Api.listUsers(schemeId);
+      document.getElementById('userList').innerHTML = users.length
+        ? users.map(userRow).join('')
+        : `<div class="dim" style="font-size:12.5px; padding:8px 4px;">No users added yet.</div>`;
+    }catch(err){
+      document.getElementById('userList').innerHTML = `<div class="dim" style="font-size:12.5px; padding:8px 4px;">Couldn't load users.</div>`;
+    }
+  }
+
+  document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('uEmail').value.trim();
+    const password = document.getElementById('uPass').value;
+    const role = document.getElementById('uRole').value;
+    const errEl = document.getElementById('addUserError');
+    errEl.style.display = 'none';
+    try{
+      await Api.createUser({ email, password, role, schemeId });
+      closeModal('addUserModal');
+      e.target.reset();
+      toast('User added');
+      loadUsers();
+    }catch(err){
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+  });
+
+  if (user){ loadScheme(); loadUsers(); }
+</script>
+</body>
+</html>

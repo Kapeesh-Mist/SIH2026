@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overview — FinTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="bg-field"></div>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">F</span>FinTrack</div>
+
+    <div>
+      <div class="side-section-label">Progress</div>
+      <nav class="side-nav">
+        <div class="side-link active" data-filter="all">Overview</div>
+        <div class="side-link" data-filter="ongoing">Ongoing <span class="count" id="cOngoing">0</span></div>
+        <div class="side-link" data-filter="completed">Completed <span class="count" id="cCompleted">0</span></div>
+      </nav>
+    </div>
+
+    <div class="side-foot">
+      <div class="side-link" onclick="logout()">Log out</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">Overview</h1>
+        <div class="path">Your workspace</div>
+      </div>
+      <div class="who">
+        <div class="info">
+          <div class="name" data-who-name>—</div>
+          <div class="role" data-who-role>—</div>
+        </div>
+        <div class="avatar" data-who-avatar>—</div>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="statGrid">
+      <div class="card stat-card grad">
+        <div class="label">Total budget</div>
+        <div class="value mono" id="statBudget">—</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Schemes</div>
+        <div class="value mono" id="statSchemes">—</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Ongoing</div>
+        <div class="value mono" id="statOngoing">—</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Flagged risk</div>
+        <div class="value mono" id="statRisk">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="col-title">
+        <h3 id="listTitle">All schemes</h3>
+        <span class="sub" id="listSub">Click a project to upload progress or expenditure</span>
+      </div>
+      <div id="schemeList"></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="detailModal">
+  <div class="modal" style="max-width:480px;">
+    <h3 id="mTitle">Scheme progress</h3>
+    <div id="mBody"></div>
+    <div class="field" style="margin-top:18px; text-align:right;">
+      <button class="btn btn-ghost" onclick="closeModal('detailModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  const user = requireAuth(['enduser']);
+  let allSchemes = [];
+  let activeFilter = 'all';
+
+  function donutSvg(pct, colorVar){
+    const deg = Math.max(0, Math.min(100, pct)) * 3.6;
+    return `background: conic-gradient(var(${colorVar}) ${deg}deg, var(--panel-alt) 0deg)`;
+  }
+
+  function schemeRow(s){
+    const pct = s.progressPercent ?? 0;
+    return `
+      <div class="scheme-row" onclick="openScheme('${s.id}')">
+        <div class="flow-icon">${(s.name || '?')[0].toUpperCase()}</div>
+        <div class="meta">
+          <div class="name">${s.name}</div>
+          <div class="sub">${s.status === 'completed' ? 'Completed' : 'Ongoing'} · Updated ${fmtDate(s.updatedAt)}</div>
+          <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="amount">
+          ${fmtMoney(s.initialBudget)}
+          <div class="dim" style="font-size:11px;margin-top:4px;">
+            <span class="badge ${riskBadgeClass(s.risk)}">${s.risk || 'low'} risk</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function render(){
+    const list = document.getElementById('schemeList');
+    const filtered = activeFilter === 'all' ? allSchemes : allSchemes.filter(s => s.status === activeFilter);
+    document.getElementById('listTitle').textContent =
+      activeFilter === 'all' ? 'All schemes' : activeFilter === 'ongoing' ? 'Ongoing schemes' : 'Completed schemes';
+
+    if (!filtered.length){
+      list.innerHTML = `<div class="empty-state">
+        <div class="icon">◎</div>
+        <h4>No schemes here yet</h4>
+        <div>Create a scheme to start tracking its budget flow.</div>
+      </div>`;
+      return;
+    }
+    list.innerHTML = filtered.map(schemeRow).join('');
+  }
+
+  function openScheme(id){
+    window.location.href = `enduser-scheme-view.html?id=${id}`;
+  }
+
+  document.querySelectorAll('.side-link[data-filter]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.side-link[data-filter]').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      activeFilter = el.dataset.filter;
+      render();
+    });
+  });
+
+  async function load(){
+    try{
+      allSchemes = await Api.listSchemes();
+    }catch(err){
+      allSchemes = [];
+      toast(err.message, true);
+    }
+    const totalBudget = allSchemes.reduce((s,x)=> s + Number(x.initialBudget||0), 0);
+    const ongoing = allSchemes.filter(s=>s.status==='ongoing').length;
+    const completed = allSchemes.filter(s=>s.status==='completed').length;
+    const risky = allSchemes.filter(s=>s.risk==='high').length;
+    document.getElementById('statBudget').textContent = fmtMoney(totalBudget);
+    document.getElementById('statSchemes').textContent = allSchemes.length;
+    document.getElementById('statOngoing').textContent = ongoing;
+    document.getElementById('statRisk').textContent = risky;
+    document.getElementById('cOngoing').textContent = ongoing;
+    document.getElementById('cCompleted').textContent = completed;
+    render();
+  }
+  if (user) load();
+</script>
+</body>
+</html>

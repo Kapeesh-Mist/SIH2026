@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "id": "1a28e24c-9cc3-4cc2-a4e4-047b76ebf41a",
+      "email": "karani@gmail.com",
+      "passwordHash": "$2a$10$H6rSnyqzzSQcwg1I1V2Yf.qVqKCVS1y4RSj4SDUEdactLF6ZIuMoe",
+      "role": "admin",
+      "schemeIds": [],
+      "createdAt": "2026-08-24T23:58:01.075Z"
+    }
+  ],
+  "schemes": []
+}

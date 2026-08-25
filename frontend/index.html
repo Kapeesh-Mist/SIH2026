@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinTrack — Trace every rupee, from budget to worker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+<div class="bg-field"></div>
+
+<nav class="nav">
+  <a href="#home" class="brand"><span class="mark">F</span>FinTrack</a>
+  <div class="nav-links">
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#how">How it works</a>
+    <a href="#roles">Roles</a>
+  </div>
+  <div class="nav-cta">
+    <a href="login.html" class="btn btn-ghost btn-sm">Log in</a>
+    <a href="login.html?mode=signup" class="btn btn-primary btn-sm">Get started</a>
+  </div>
+</nav>
+
+<!-- ============ HOME / HERO ============ -->
+<header id="home" class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow">● Live fund tracing</div>
+    <h1>Trace every rupee from <em>budget</em> to <em>worker</em>.</h1>
+    <p>FinTrack replaces scattered registers and Excel sheets with one hierarchy — budgets flow down through departments, contractors and institutions to the people actually doing the work, with every transaction visible and every anomaly flagged.</p>
+    <div class="hero-actions">
+      <a href="login.html?mode=signup" class="btn btn-primary">Start tracking your budget</a>
+      <a href="#how" class="btn btn-ghost">See how it flows</a>
+    </div>
+    <div class="hero-stats">
+      <div class="s"><div class="n mono">0</div><div class="l">Untraced rupees</div></div>
+      <div class="s"><div class="n mono">100%</div><div class="l">Audit visibility</div></div>
+      <div class="s"><div class="n mono">3</div><div class="l">Hierarchy tiers</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="flow-stage" id="flowStage"></div>
+  </div>
+</header>
+
+<!-- ============ ABOUT / PROBLEM ============ -->
+<section id="about">
+  <div class="section-head" data-reveal>
+    <div class="eyebrow">● The problem</div>
+    <h2>Money disappears in the gap between the budget and the ground.</h2>
+    <p>Institutions — from government departments to small implementing organisations — track budgets on paper registers, spreadsheets, and disconnected systems. Nobody can see the full path a rupee takes.</p>
+  </div>
+  <div class="problem-grid">
+    <div class="card problem-card" data-reveal>
+      <div class="n mono">01</div>
+      <h4>No single source of truth</h4>
+      <p>Budgets, approvals and spend records live in separate files, so reconciling who spent what takes weeks, not seconds.</p>
+    </div>
+    <div class="card problem-card" data-reveal>
+      <div class="n mono">02</div>
+      <h4>Delayed payments, silent leakage</h4>
+      <p>Without a live view of disbursement, funds sit idle at one tier while workers at the next tier wait — or worse, quietly vanish.</p>
+    </div>
+    <div class="card problem-card" data-reveal>
+      <div class="n mono">03</div>
+      <h4>No real-time control</h4>
+      <p>By the time an audit happens, the trail has gone cold. There's no way to catch an anomalous transaction while it still matters.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS / HIERARCHY ============ -->
+<section id="how">
+  <div class="section-head" data-reveal>
+    <div class="eyebrow">● The solution</div>
+    <h2>One traceable hierarchy, from the top budget to the last worker.</h2>
+    <p>A central admin creates a scheme and its budget. Members add the members below them — down to the contractors, institutions and workers actually spending it — so every rupee has a visible, verified path.</p>
+  </div>
+  <div class="card flow-explainer" data-reveal>
+    <div class="tier-row">
+      <div class="tier">
+        <div class="dot"></div>
+        <h5>Admin</h5>
+        <p>Creates the scheme, sets the initial budget, adds intermediate members.</p>
+      </div>
+      <div class="tier-connector">→</div>
+      <div class="tier">
+        <div class="dot"></div>
+        <h5>Intermediate</h5>
+        <p>Adds end users below them, verifies proof before it counts as spend.</p>
+      </div>
+      <div class="tier-connector">→</div>
+      <div class="tier">
+        <div class="dot"></div>
+        <h5>End user</h5>
+        <p>Teachers, contractors, service workers — upload proof of work and spend.</p>
+      </div>
+      <div class="tier-connector">→</div>
+      <div class="tier">
+        <div class="dot"></div>
+        <h5>AI oversight</h5>
+        <p>Anomalous transactions are flagged for review as they happen, not months later.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROLES ============ -->
+<section id="roles">
+  <div class="section-head" data-reveal>
+    <div class="eyebrow">● Built for every tier</div>
+    <h2>Every role gets exactly the view it needs.</h2>
+  </div>
+  <div class="roles-grid">
+    <div class="card role-card" data-reveal>
+      <div class="tag">Tier 01</div>
+      <h4>Admin</h4>
+      <p class="muted" style="font-size:13.5px;">Owns the scheme and the budget.</p>
+      <ul>
+        <li>Create schemes with an initial budget and supporting PDF</li>
+        <li>Add intermediate members below them</li>
+        <li>Track ongoing and completed progress, per scheme</li>
+        <li>See flagged risk on any transaction</li>
+      </ul>
+    </div>
+    <div class="card role-card" data-reveal>
+      <div class="tag">Tier 02</div>
+      <h4>Intermediate</h4>
+      <p class="muted" style="font-size:13.5px;">Manages end users and verifies proof.</p>
+      <ul>
+        <li>Add end users below them</li>
+        <li>Review proof in "to be verified" before it posts</li>
+        <li>Verify progress and expenditure documents</li>
+        <li>Track ongoing and completed progress</li>
+      </ul>
+    </div>
+    <div class="card role-card" data-reveal>
+      <div class="tag">Tier 03</div>
+      <h4>End user</h4>
+      <p class="muted" style="font-size:13.5px;">Teachers, contractors, service workers.</p>
+      <ul>
+        <li>See their assigned project</li>
+        <li>Upload progress proof for their work</li>
+        <li>Upload expenditure proof for spend</li>
+        <li>Track their own verification status</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section id="get-started">
+  <div class="cta-band" data-reveal>
+    <h2>Give every rupee a visible path.</h2>
+    <p>Set up your first scheme in minutes — no spreadsheets required.</p>
+    <a href="login.html?mode=signup" class="btn btn-primary">Get started</a>
+  </div>
+</section>
+
+<footer>
+  <div>© 2026 FinTrack. Built for transparent budget management.</div>
+  <div>Home · About · How it works · Roles</div>
+</footer>
+
+<script src="js/flow-visual.js"></script>
+<script>
+  document.querySelectorAll('[data-reveal]').forEach(el=>{
+    const io = new IntersectionObserver(([entry])=>{
+      if (entry.isIntersecting){ el.classList.add('in'); io.disconnect(); }
+    }, { threshold: 0.15 });
+    io.observe(el);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project — FinTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="bg-field"></div>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">F</span>FinTrack</div>
+    <a href="enduser-dashboard.html" class="side-link">← My projects</a>
+    <div class="side-foot">
+      <div class="side-link" onclick="logout()">Log out</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="schemeName">Loading…</h1>
+        <div class="path" id="schemeMeta">—</div>
+      </div>
+      <div class="who">
+        <div class="info">
+          <div class="name" data-who-name>—</div>
+          <div class="role" data-who-role>—</div>
+        </div>
+        <div class="avatar" data-who-avatar>—</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="col-title">
+          <h3>Progress</h3>
+          <button class="btn btn-primary btn-sm" onclick="openModal('uploadModal'); presetType('progress')">+ Upload</button>
+        </div>
+        <div class="sub" style="margin-top:-10px;">Your uploads wait for verification before they show as confirmed.</div>
+        <div class="doc-list" id="progressList" style="margin-top:14px;"></div>
+      </div>
+      <div class="card">
+        <div class="col-title">
+          <h3>Expenditure</h3>
+          <button class="btn btn-primary btn-sm" onclick="openModal('uploadModal'); presetType('expenditure')">+ Upload</button>
+        </div>
+        <div class="sub" style="margin-top:-10px;">Proof of spend for this project.</div>
+        <div class="doc-list" id="expenditureList" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="uploadModal">
+  <div class="modal">
+    <h3 id="uploadTitle">Upload document</h3>
+    <form id="uploadForm">
+      <div class="field">
+        <label>PDF document</label>
+        <div class="dropzone" id="dz">
+          <div>Click to upload, or drag a PDF here</div>
+          <div class="dz-name" id="dzName"></div>
+        </div>
+        <input type="file" id="uFile" accept="application/pdf" style="display:none;" required>
+      </div>
+      <div class="field" id="percentField">
+        <label for="uPercent">Progress completed (%)</label>
+        <input id="uPercent" type="number" min="0" max="100" placeholder="e.g. 60">
+      </div>
+      <div class="field" id="amountField" style="display:none;">
+        <label for="uAmount">Amount spent (₹)</label>
+        <input id="uAmount" type="number" min="0" placeholder="e.g. 25000">
+      </div>
+      <div class="field-error" id="uploadError"></div>
+      <div class="form-actions" style="display:flex; gap:12px; justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('uploadModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit for verification</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  const user = requireAuth(['enduser']);
+  const schemeId = qs('id');
+  if (!schemeId) window.location.href = 'enduser-dashboard.html';
+  let uploadType = 'progress';
+
+  function presetType(type){
+    uploadType = type;
+    document.getElementById('uploadTitle').textContent = type === 'progress' ? 'Upload progress proof' : 'Upload expenditure proof';
+    document.getElementById('percentField').style.display = type === 'progress' ? 'block' : 'none';
+    document.getElementById('amountField').style.display = type === 'expenditure' ? 'block' : 'none';
+  }
+
+  const dz = document.getElementById('dz');
+  const fileInput = document.getElementById('uFile');
+  let pickedFile = null;
+  dz.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    pickedFile = fileInput.files[0] || null;
+    document.getElementById('dzName').textContent = pickedFile ? pickedFile.name : '';
+  });
+
+  function docItem(d){
+    return `<div class="doc-item">
+      <div class="ico">PDF</div>
+      <div class="info">
+        <div class="fname">${d.filename}</div>
+        <div class="fmeta">${fmtDate(d.uploadedAt)}${d.amount ? ' · ' + fmtMoney(d.amount) : ''}${d.percent ? ' · ' + d.percent + '%' : ''}</div>
+      </div>
+      <span class="badge ${d.status === 'verified' ? 'badge-completed' : 'badge-pending'}">${d.status === 'verified' ? 'Verified' : 'Awaiting verification'}</span>
+    </div>`;
+  }
+
+  async function loadScheme(){
+    try{
+      const scheme = await Api.getScheme(schemeId);
+      document.getElementById('schemeName').textContent = scheme.name;
+      document.getElementById('schemeMeta').textContent = 'Your project';
+
+      const mine = (list) => (list || []).filter(d => d.uploadedBy === user.email);
+      const myPending = mine(scheme.pendingDocs);
+      const progress = [...mine(scheme.progressDocs), ...myPending.filter(d => d.type === 'progress')];
+      const expenditure = [...mine(scheme.expenditureDocs), ...myPending.filter(d => d.type === 'expenditure')];
+
+      document.getElementById('progressList').innerHTML = progress.length
+        ? progress.map(docItem).join('')
+        : `<div class="empty-state" style="padding:24px 10px;"><div class="icon">▤</div><div>No progress uploaded yet</div></div>`;
+      document.getElementById('expenditureList').innerHTML = expenditure.length
+        ? expenditure.map(docItem).join('')
+        : `<div class="empty-state" style="padding:24px 10px;"><div class="icon">▤</div><div>No expenditure uploaded yet</div></div>`;
+    }catch(err){
+      toast(err.message, true);
+    }
+  }
+
+  document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('uploadError');
+    errEl.style.display = 'none';
+    if (!pickedFile){ errEl.textContent = 'Choose a PDF first.'; errEl.style.display = 'block'; return; }
+    try{
+      if (uploadType === 'progress'){
+        await Api.uploadProgress(schemeId, pickedFile, document.getElementById('uPercent').value || 0);
+      } else {
+        await Api.uploadExpenditure(schemeId, pickedFile, document.getElementById('uAmount').value || 0);
+      }
+      closeModal('uploadModal');
+      pickedFile = null;
+      document.getElementById('dzName').textContent = '';
+      e.target.reset();
+      toast('Submitted — waiting on verification');
+      loadScheme();
+    }catch(err){
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+  });
+
+  if (user) loadScheme();
+</script>
+</body>
+</html>
